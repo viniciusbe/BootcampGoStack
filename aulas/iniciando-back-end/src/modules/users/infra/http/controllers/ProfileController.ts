@@ -17,7 +17,7 @@ export default class ProfileController {
       password: undefined,
     };
 
-    return response.json({ user: userWithoutPassword });
+    return response.json(userWithoutPassword);
   }
 
   public async update(request: Request, response: Response): Promise<Response> {
