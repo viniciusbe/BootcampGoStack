@@ -1,2 +1,11 @@
 tmp/*
 !tmp/.gitkeep
+
+.env
+coverage
+node_modules/
+build/
+temp/
+.vscode
+.ideia/
+ormconfig.json
