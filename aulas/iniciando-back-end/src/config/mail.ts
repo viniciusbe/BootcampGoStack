@@ -15,7 +15,7 @@ export default {
   defaults: {
     from: {
       email: 'vinicius@vibesa.online',
-      name: 'Vinícius da vibesa',
+      name: 'Vinícius da GoBarber',
     },
   },
 } as IMailConfig;
