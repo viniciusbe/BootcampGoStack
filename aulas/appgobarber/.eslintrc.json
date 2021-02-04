@@ -41,6 +41,7 @@
     ],
     "import/prefer-default-export": "off",
     "no-unused-expressions": "off",
+    "camelcase": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
