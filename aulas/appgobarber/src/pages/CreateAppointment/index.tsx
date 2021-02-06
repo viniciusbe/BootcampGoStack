@@ -177,6 +177,10 @@ const CreateAppointment: React.FC = () => {
       <Content>
         <ProvidersListContainer>
           <ProvidersList
+            contentContainerStyle={{
+              paddingVertical: 32,
+              paddingHorizontal: 12,
+            }}
             horizontal
             showsHorizontalScrollIndicator={false}
             data={providers}

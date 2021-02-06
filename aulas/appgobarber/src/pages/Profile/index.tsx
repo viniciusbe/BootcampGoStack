@@ -1,17 +1,18 @@
 /* eslint-disable prettier/prettier */
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
-  View,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   TextInput,
   Alert,
+  PermissionsAndroid,
+  Dimensions
 } from 'react-native';
+
 import { useNavigation } from '@react-navigation/native';
 import * as Yup from 'yup';
-// import Icon from 'react-native-vector-icons/Feather';
-import { Icon } from 'react-native-elements'
+import Icon from 'react-native-vector-icons/Feather';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 import { Form } from '@unform/mobile';
@@ -22,11 +23,15 @@ import Button from '../../components/Button';
 
 import {
   Container,
-  Title,
-  BackButton,
+  Header,
+  HeaderTitle,
+  HeaderButton,
+  UserAvatarContainer,
+  AvatarButtonsContainer,
   UserAvatarButton,
   UserAvatar,
 } from './styles';
+
 import getValidationErrors from '../../utils/getValidationErrors';
 import api from '../../services/api';
 import { useAuth } from '../../hooks/auth';
@@ -40,7 +45,7 @@ interface ProfileFormData {
 }
 
 const Profile: React.FC = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, signOut } = useAuth();
 
   const formRef = useRef<FormHandles>(null);
   const navigation = useNavigation();
@@ -123,7 +128,7 @@ const Profile: React.FC = () => {
     [navigation, updateUser],
   );
 
-  const handleUpdateAvatar = useCallback(() => {
+  const handleUpdateAvatarFromLibrary = useCallback(() => {
     launchImageLibrary({
       mediaType: 'photo',
       // maxWidth: 200,
@@ -151,9 +156,68 @@ const Profile: React.FC = () => {
     })
   }, [updateUser])
 
+  const handleUpdateAvatarFromCamera = useCallback(() => {
+    launchCamera({
+      mediaType: 'photo',
+      // maxWidth: 200,
+      // maxHeight: 200,
+    }, (response) => {
+      if (response.didCancel) return;
+
+      if (response.errorCode) {
+        Alert.alert("Erro ao atualizar seu avatar")
+        console.log("ERROOOOOOO", response.errorMessage);
+      }
+
+      const data = new FormData();
+
+      data.append('avatar', {
+        type: response.type,
+        name: response.fileName,
+        uri: response.uri,
+      })
+
+      api.patch('users/avatar', data).then((apiResponse) => {
+        updateUser(apiResponse.data)
+      })
+
+    })
+  }, [updateUser])
+
+  const requestCameraPermission = useCallback(async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: "Permissão para usar a câmera",
+          message:
+            "GoBarber precisa do acesso à câmera",
+          buttonNeutral: "Perguntar outra hora",
+          buttonNegative: "Cancelar",
+          buttonPositive: "OK"
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        handleUpdateAvatarFromCamera();
+      } else {
+        return;
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  }, [handleUpdateAvatarFromCamera])
+
   const handleGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
+  const handleSignOut = useCallback(() => {
+    signOut();
+  }, [signOut]);
+
+  const screenHeight = useMemo(() => {
+    return Dimensions.get('window').height;
+  }, [])
 
   return (
     <>
@@ -163,26 +227,53 @@ const Profile: React.FC = () => {
         enabled
       >
         <ScrollView
-          // contentContainerStyle={{ flex: 1 }}
+          contentContainerStyle={{ height: screenHeight }}
           keyboardShouldPersistTaps="handled"
         >
           <Container>
-            <BackButton onPress={handleGoBack}>
-              <Icon name="chevron-left" reverse size={24} color="#999591" />
-            </BackButton>
-            {/* <UserAvatarButton onPress={handleUpdateAvatar}>
+
+            <Header>
+              <HeaderButton onPress={handleGoBack}>
+                <Icon
+                  name="chevron-left"
+                  size={24}
+                  color="#999591"
+                />
+              </HeaderButton>
+
+              <HeaderTitle> Meu perfil</HeaderTitle>
+
+              <HeaderButton onPress={handleSignOut}>
+                <Icon
+                  name="power"
+                  size={24}
+                  color="#999591"
+                />
+              </HeaderButton>
+            </Header>
+
+            <UserAvatarContainer>
               <UserAvatar source={{ uri: user.avatar_url }} />
-            </UserAvatarButton> */}
 
-            <UserAvatar source={{ uri: user.avatar_url }} />
+              <AvatarButtonsContainer>
+                <UserAvatarButton onPress={handleUpdateAvatarFromLibrary}>
+                  <Icon
+                    name="image"
+                    size={24}
+                    color="#312E38"
+                  />
+                </UserAvatarButton>
 
-            <UserAvatarButton onPress={handleUpdateAvatar}>
-              <Icon reverseColor="" name="image" size={24} color="#ff9000" />
-            </UserAvatarButton>
+                <UserAvatarButton onPress={requestCameraPermission}>
+                  <Icon
+                    name="camera"
+                    size={24}
+                    color="#312E38"
+                  />
+                </UserAvatarButton>
+              </AvatarButtonsContainer>
+            </UserAvatarContainer>
 
-            <View>
-              <Title>Meu perfil</Title>
-            </View>
 
             <Form initialData={user} ref={formRef} onSubmit={handleProfileUpdate}>
               <Input

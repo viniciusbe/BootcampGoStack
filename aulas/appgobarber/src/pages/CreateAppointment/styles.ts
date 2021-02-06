@@ -51,21 +51,18 @@ export const UserAvatar = styled.Image`
 
 export const Content = styled.ScrollView``;
 
-export const ProvidersListContainer = styled.View`
-  height: 112px;
-`;
+export const ProvidersListContainer = styled.View``;
 
-export const ProvidersList = styled(FlatList as new () => FlatList<Provider>)`
-  padding: 32px 24px;
-`;
+export const ProvidersList = styled(FlatList as new () => FlatList<Provider>)``;
 
 // eslint-disable-next-line prettier/prettier
 export const ProviderContainer = styled(RectButton) <ProviderContainerProps>`
   background: ${props => (props.selected ? '#ff9000' : '#3e3b47')};
   flex-direction: row;
   align-items: center;
-  padding: 8px 12px;
-  margin-right: 16px;
+  padding: 12px 12px;
+  margin: 0 12px 8px;
+
   border-radius: 10px;
 `;
 
@@ -122,7 +119,7 @@ export const SectionTitle = styled.Text`
 `;
 
 export const SectionContent = styled.ScrollView.attrs({
-  contentContainerStyle: { paddingHorizontal: 24 },
+  contentContainerStyle: { paddingHorizontal: 20 },
   horizontal: true,
   showsHorizontalScrollIndicator: false,
 })``;
@@ -132,7 +129,8 @@ export const Hour = styled(RectButton) <HourProps>`
   padding: 12px;
   background: ${props => (props.selected ? '#ff9000' : '#3e3b47')};
   border-radius: 10px;
-  margin-right: 8px;
+  margin-right: 4px;
+  margin-left: 4px;
 
   opacity: ${props => (props.available ? 1 : 0.3)};
 `;
