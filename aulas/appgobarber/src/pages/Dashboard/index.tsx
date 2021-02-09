@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { useNavigation } from '@react-navigation/native';
-import { View, Button } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
 import { useAuth } from '../../hooks/auth';
@@ -33,13 +32,17 @@ export interface Provider {
 const Dashboard: React.FC = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
 
-  const { signOut, user } = useAuth();
+  const { user } = useAuth();
   const { navigate } = useNavigation();
 
   useEffect(() => {
-    api.get('providers').then(response => {
-      setProviders(response.data);
-    });
+    try {
+      api.get('providers').then(response => {
+        setProviders(response.data);
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }, []);
 
   const navogateToProfile = useCallback(() => {

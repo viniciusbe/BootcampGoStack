@@ -37,23 +37,18 @@ class User {
   @Expose({ name: 'avatar_url' })
   getAvatarUrl(): string | null {
     if (!this.avatar) {
-      return null;
+      return 'https://vibesa-app-gobarber.s3.us-east-2.amazonaws.com/default_avatar.jpg';
     }
     switch (uploadConfig.driver) {
       case 'disk':
         return `${process.env.APP_API_URL}/files/${this.avatar}`;
-        break;
 
       case 's3':
         return `https://${uploadConfig.config.aws.bucket}.s3.us-east-2.amazonaws.com/${this.avatar}`;
-        break;
 
       default:
         return null;
     }
-    return this.avatar
-      ? `${process.env.APP_API_URL}/files/${this.avatar}`
-      : null;
   }
 }
 
